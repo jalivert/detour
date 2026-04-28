@@ -1,0 +1,606 @@
+module ℕ
+
+
+aliases : 2 = Suc(Suc(Zero))
+        , 3 = Suc(Suc(Suc(Zero)))
+        , 5 = Suc(Suc(Suc(Suc(Suc(Zero)))))
+
+
+syntax ℕ  = Zero    --  Zero : ℕ
+          | Suc(ℕ)  --  Suc  : ℕ -> ℕ
+
+
+judgment sum = Sum(ℕ, ℕ, ℕ)
+
+rule schema sum-zero for all objects (n : ℕ) :
+|
+|-------------------------------------- sum-zero
+| Sum(Zero, n, n)
+
+
+rule schema sum-suc for all objects (m : ℕ), (n : ℕ), (o : ℕ) :
+| Sum(m, n, o)
+|-------------------------------------- sum-suc
+| Sum(Suc(m), n, Suc(o))
+
+
+
+
+-- theorem total : ∀ (N : ℕ) (M : ℕ) : ∃ (O : ℕ) : Sum(N, M, O)
+-- ∀ (N : ℕ) (M : ℕ) : ∃ (O : ℕ) : Sum(N, M, O)  by unproved
+
+
+
+theorem n+0=n : ∀ (N : ℕ) : Sum(N, Zero, N)
+∀ (N : ℕ) : Sum(N, Zero, N)  by unproved
+
+
+theorem sum-s-rhs : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3))
+∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3))  by unproved
+
+
+
+
+-- What I want this to do is, instantiate the variable N
+-- and get a formula like Sum( N!? , Zero , N!? )
+-- Then I try to prove this.
+-- 
+-- Since it's an atom, I see how I can prove this particular proposition.
+-- There are certain constructors.
+-- 
+-- There's only one thing.
+-- I don't really want to do case split on the prove of the judgment.
+-- What I mean is, I don't really want to use those to constructors/rules sum-zero and sum-suc.
+-- Instead, it's about doing case split on the N?!.
+-- 
+-- So maybe I can think like this:
+-- When I need to instantiate the N to something, I case split right away.
+-- So I am proving two things.
+-- One is    Sum( Zero , Zero , Zero )
+-- and the other is    Sum( Suc(n!?) , Zero , Suc(n!?) )
+-- 
+-- Proving the first one is simple. It is matched by exactly one constructor sum-zero.
+-- The other one is matched by exactly one — sum-suc.
+-- 
+-- From here, it's somewhat more straightforward.
+-- The first case, we have proven. We are done.
+-- The second case, we have to prove   Sum(n!?, Zero, n!?)  where n!? : ℕ.
+-- This is a situation in which we already were.
+-- 
+-- We can either attempt the inductive reasoning, or we can rely on the programmer to do that.
+-- It could be that the next thing the tool does it prints something like:
+-- ... we do case split on the N
+-- and we have to deal with two options
+-- we start with the first one where N = Zero
+-- this leads to sum-zero being used and we are done.
+-- 
+-- So the user would be expected to change the code a bit, like this:
+-- 
+-- theorem n+0 : ∀ (N : ℕ) : Sum(N, Zero, N)
+-- prove ∀ (N : ℕ) : Sum(N, Zero, N)  by case analysis
+
+
+--  theorem sum-commutes : ∀ (n1 : ℕ) (n2 : ℕ) (n3 : ℕ) : Sum(n1, n2, n3) ==> Sum(n2, n1, n3)
+--  -- ∀ (n1 : ℕ) (n2 : ℕ) (n3 : ℕ) : Sum(n1, n2, n3) ==> Sum(n2, n1, n3)  by unproved
+--  prove ∀ (n1 : ℕ) (n2 : ℕ) (n3 : ℕ) : Sum(n1, n2, n3) ==> Sum(n2, n1, n3)
+--  
+--  1 : | for any (N1 : ℕ) (N2 : ℕ) (N3 : ℕ)
+--      |-------------------------------------------------
+--      |
+--      | 11 :  | p : Sum(n1, n2, n3)
+--      |       |-----------------------------------------
+--      |       |
+--      |       | 
+--  
+--  2 : ∀ (n1 : ℕ) (n2 : ℕ) (n3 : ℕ) : Sum(n1, n2, n3) ==> Sum(n2, n1, n3)  by rule ∀-intro on 1
+--  
+--  -- -------------------------------------------------------------------------------------------------------------
+--  
+--  1 : ∀ (n1 : ℕ) (n2 : ℕ) (n3 : ℕ) : Sum(n1, n2, n3) ==> Sum(n2, n1, n3)  by induction :
+--  
+--      case Zero ->
+--      |
+--      |---------------------------------------
+--      | -- the goal is      ∀ (n2 : ℕ) (n3 : ℕ) : Sum(Zero, n2, n3) ==> Sum(n2, Zero, n3)
+--      | 
+--  
+
+
+
+
+
+-------------------------------------------------------------------------------
+--  Here, I prove it myself.
+
+theorem sum-uniq-commutes-manual : ∀ (n1, n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+
+N+0=N : ∀ (N : ℕ) : Sum(N, Zero, N)  by theorem n+0=n
+
+∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)  by induction :
+
+  case Zero ->
+    |
+    |--------------------------------------------------------------------------
+    | -- goal = ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)
+    |
+    | 1 : | for any (N2 : ℕ)
+    |     |--------------------------------------------------------------------
+    |     |
+    |     | 2 : Sum(Zero, N2, N2)  by rule sum-zero
+    |     | 3 : Sum(N2, Zero, N2)  by rule ∀-elim on N+0=N
+    |     | 4 : Sum(Zero, N2, N2) ∧ Sum(N2, Zero, N2)  by rule ∧-intro on 2,3
+    |     | 5 : ∃ (n3 : ℕ) : Sum(Zero, N2, n3) ∧ Sum(N2, Zero, n3)  by rule ∃-intro on 4
+    |
+    | 2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)  by rule ∀-intro on 1
+
+  case Suc(m) ->
+    | ind-hyp : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(m, n2, n3) ∧ Sum(n2, m, n3)
+    |--------------------------------------------------------------------------
+    | -- goal = ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)
+    |
+    | 1 : | for any (N2' : ℕ)
+    |     |--------------------------------------------------------------------
+    |     |
+    |     | ∃ (n3 : ℕ) : Sum(Suc(m), N2', n3) ∧ Sum(N2', Suc(m), n3)  by case analysis on N2' :
+    |     |
+    |     |   case Zero ->
+    |     |     |
+    |     |     |--------------------------------------------------------------
+    |     |     |
+    |     |     | 1 : Sum(Suc(m), Zero, Suc(m))  by rule ∀-elim on N+0=N
+    |     |     | 2 : Sum(Zero, Suc(m), Suc(m))  by rule sum-zero
+    |     |     | 3 : Sum(Suc(m), Zero, Suc(m)) ∧ Sum(Zero, Suc(m), Suc(m))  by rule ∧-intro on 1, 2
+    |     |     | 4 : ∃ (n3 : ℕ) : Sum(Suc(m), Zero, n3) ∧ Sum(Zero, Suc(m), n3)  by rule ∃-intro on 3
+    |     |
+    |     |   case Suc(m') ->
+    |     |     |
+    |     |     |--------------------------------------------------------------
+    |     |     |
+    |     |     | 1 : ∃ (n3 : ℕ) : Sum(m, Suc(m'), n3) ∧ Sum(Suc(m'), m, n3)  by rule ∀-elim on ind-hyp
+    |     |     | 2 : | p : Sum(m, Suc(m'), n3') ∧ Sum(Suc(m'), m, n3') for some (n3' : ℕ)
+    |     |     |     |--------------------------------------------------------
+    |     |     |     |
+    |     |     |     | 33 : Sum(m, Suc(m'), n3')  by rule ∧-elim on p
+    |     |     |     | 4 : Sum(Suc(m'), m, n3')  by rule ∧-elim on p
+    |     |     |     | 5 : Sum(Suc(m), Suc(m'), Suc(n3'))  by rule sum-suc on 33
+    |     |     |     | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (n3' : ℕ) : Sum(N1, N2, n3') ==> Sum(N1, Suc(N2), Suc(n3')) by theorem sum-s-rhs
+    |     |     |     | f1 : Sum(Suc(m'), m, n3') ==> Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ∀-elim on f2
+    |     |     |     | 6 : Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ==>-elim on f1, 4
+    |     |     |     | 7 : Sum(Suc(m), Suc(m'), Suc(n3')) ∧ Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ∧-intro on 5, 6
+    |     |     |     | 8 : ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)  by rule ∃-intro on 7
+    |     |     |
+    |     |     | 9 : ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)  by rule ∃-elim on 1, 2
+    |
+    | 2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)  by rule ∀-intro on 1
+
+
+
+-------------------------------------------------------------------------------
+--  Here, I prove it almost myself.
+
+-- theorem sum-uniq-commutes-almost-manual : ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+-- 
+-- N+0=N : ∀ (N : ℕ) : Sum(N, Zero, N)  by theorem n+0=n
+-- 
+-- ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)  by induction :
+-- 
+--   case Zero ->
+--     |
+--     |--------------------------------------------------------------------------
+--     | -- goal = ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)
+--     |
+--     | -- 1 : | for any (N2 : ℕ)
+--     | --     |--------------------------------------------------------------------
+--     | --     |
+--     | --     | 5 : prove  ∃ (n3 : ℕ) : Sum(Zero, N2, n3) ∧ Sum(N2, Zero, n3)
+--     |
+--     | -- 2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)  by rule ∀-intro on 1
+--     | 2 : prove ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)
+-- 
+--   case Suc(m) ->
+--     | ind-hyp : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(m, n2, n3) ∧ Sum(n2, m, n3)
+--     |--------------------------------------------------------------------------
+--     | -- goal = ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)
+--     |
+--     | 1 : | for any (N2' : ℕ)
+--     |     |--------------------------------------------------------------------
+--     |     |
+--     |     | ∃ (n3 : ℕ) : Sum(Suc(m), N2', n3) ∧ Sum(N2', Suc(m), n3)  by case analysis on N2' :
+--     |     |
+--     |     |   case Zero ->
+--     |     |     |
+--     |     |     |--------------------------------------------------------------
+--     |     |     |
+--     |     |     | 4 : prove  ∃ (n3 : ℕ) : Sum(Suc(m), Zero, n3) ∧ Sum(Zero, Suc(m), n3)
+--     |     |
+--     |     |   case Suc(m') ->
+--     |     |     |
+--     |     |     |--------------------------------------------------------------
+--     |     |     |
+--     |     |     | 1 : ∃ (n3 : ℕ) : Sum(m, Suc(m'), n3) ∧ Sum(Suc(m'), m, n3)  by rule ∀-elim on ind-hyp
+--     |     |     | 2 : | p : Sum(m, Suc(m'), n3') ∧ Sum(Suc(m'), m, n3') for some (n3' : ℕ)
+--     |     |     |     |--------------------------------------------------------
+--     |     |     |     |
+--     |     |     |     | -- 3 : Sum(m, Suc(m'), n3')  by rule ∧-elim on p
+--     |     |     |     | -- 4 : Sum(Suc(m'), m, n3')  by rule ∧-elim on p
+--     |     |     |     |
+--     |     |     |     | -- 5 : prove  Sum(Suc(m), Suc(m'), Suc(n3'))
+--     |     |     |     |
+--     |     |     |     | -- f2 : ∀ (N1 : ℕ) (N2 : ℕ) (n3' : ℕ) : Sum(N1, N2, n3') ==> Sum(N1, Suc(N2), Suc(n3')) by theorem sum-s-rhs
+--     |     |     |     | -- f1 : Sum(Suc(m'), m, n3') ==> Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ∀-elim on f2
+--     |     |     |     | -- 6 : Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ==>-elim on f1, 4
+--     |     |     |     | -- 6 : prove  Sum(Suc(m'), Suc(m), Suc(n3'))
+--     |     |     |     | 7 : prove  Sum(Suc(m), Suc(m'), Suc(n3')) ∧ Sum(Suc(m'), Suc(m), Suc(n3'))
+--     |     |     |     | 8 : prove ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)
+--     |     |     |
+--     |     |     | 9 : ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)  by rule ∃-elim on 1, 2
+--     |
+--     | 2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)  by rule ∀-intro on 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- theorem sum-uniq-commutes : ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+-- prove ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+
+
+-- ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+-- 
+-- n1 = zero
+--   n2 = zero
+--     Sum(zero, zero, n3?) ∧ Sum(zero, zero, n3?)
+--     --  obe pres sum-zero
+-- 
+--   n2 = suc n'
+--     Sum(zero, suc n', n3?) ∧ Sum(suc n', zero, n3?)
+--     -- prvni pres sum-zero
+--     -- a to mi da ze n3? = suc n'
+--     -- druhy pres sum-suc
+--     -- to vyzaduje dokazat Sum(n', zero, n')
+-- 
+-- 
+-- n1 = suc n''
+--   n2 = zero
+--     Sum(suc n'', zero, n3?) ∧ Sum(zero, suc n'', n3?)
+--     -- to druhy pres sum-zero
+--     -- a zase n3? = suc n''
+-- 
+--     -- to prvni pres sum-suc
+--     -- a to vyzaduje Sum(n'', zero, n'')
+-- 
+--   n2 = suc n'''
+--     Sum(suc n'', suc n''', n3?) ∧ Sum(suc n''', suc n'', n3?)
+--     -- tady jde pouzit indukcni hyp.
+--     -- indukce na prvni argumentu
+--     -- dostanu
+--     -- Sum(n'', suc n''', n4?) ∧ Sum(suc n''', n'', n4?)
+--     -- aplikuju na prvni sum-suc pravidlo
+--     -- Sum(suc n'', suc n''', suc n4)
+--     -- a to je ok
+-- 
+--     -- druha strana vede na jednoduchy teorem
+--     -- tim je ok
+
+--     -- goal is Sum(suc n''', suc n'', suc n3!?)
+--     -- use the rule sum-suc to get     Sum(n''', suc n'', n3!?)
+--     -- 
+
+
+
+
+--  When the goal will be the existentially quantified conjunction:
+--  
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      |
+--      | e : Sum(Suc(_1), Suc(_50), Suc(n3')) by rule sum-suc on c
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      |
+--      | g : Sum(Suc(_1), Suc(_50), Suc(n3')) ∧ Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∧-intro on e, f
+--      | h : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-intro on g
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+--
+
+
+--  This succeeds as well.
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_54), n3) ∧ Sum(Suc(_54), _1, n3)  by rule ∀-elim on _52
+--  b : | p : Sum(_1, Suc(_54), n3') ∧ Sum(Suc(_54), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_54), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_54), _1, n3')  by rule ∧-elim on p
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_54), _1, n3') ==> Sum(Suc(_54), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_54), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      |
+--      | h : prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+--  So it might make sense to want something like this to work:
+--  
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_54), n3) ∧ Sum(Suc(_54), _1, n3)  by rule ∀-elim on _52
+--  b : | p : Sum(_1, Suc(_54), n3') ∧ Sum(Suc(_54), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------------------------
+--      |
+--      | h : prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')
+--
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')  by rule ∃-elim on a, b
+--
+--  The idea is that we have to help the prover to utilize the inductive hypothesis correctly
+--  but we want it to do all this on its own:
+--                                            - take apart the assumed conjunction
+--                                            - use the left part with sum-suc to prove the left part of the goal
+--                                            - use the theorem sum-s-rhs — that entails ==> elimination on the right-hand side of the assumption and use it to prove the 
+
+
+
+--  Can it use the conjunction in the assumption to satisfy the left part?
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_54), n3) ∧ Sum(Suc(_54), _1, n3)  by rule ∀-elim on _52
+--  b : | p : Sum(_1, Suc(_54), n3') ∧ Sum(Suc(_54), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | d : Sum(Suc(_54), _1, n3')  by rule ∧-elim on p
+--      |
+--      | e : prove Sum(Suc(_1), Suc(_54), Suc(n3'))
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_54), _1, n3') ==> Sum(Suc(_54), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_54), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      |
+--      | g : Sum(Suc(_1), Suc(_54), Suc(n3')) ∧ Sum(Suc(_54), Suc(_1), Suc(n3'))  by rule ∧-intro on e, f
+--      | h : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')  by rule ∃-intro on g
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_54), n3') ∧ Sum(Suc(_54), Suc(_1), n3')  by rule ∃-elim on a, b
+--
+
+
+
+
+
+--  This also succeeds.
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      |
+--      | e : Sum(Suc(_1), Suc(_50), Suc(n3')) by rule sum-suc on c
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      |
+--      | h : prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+
+--  Try to use prove for the sum-suc on c
+--  This one passes!
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      |
+--      | e : prove Sum(Suc(_1), Suc(_50), Suc(n3'))
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      | g : Sum(Suc(_1), Suc(_50), Suc(n3')) ∧ Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∧-intro on e, f
+--      | h : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-intro on g
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+--  This succeeded as well.
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      | e : prove Sum(Suc(_1), Suc(_50), Suc(n3'))
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      | g : Sum(Suc(_1), Suc(_50), Suc(n3')) ∧ Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∧-intro on e, f
+--      | h : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-intro on g
+--      | h1 : prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+
+--  This succeeds as well.
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      |
+--      | e : prove Sum(Suc(_1), Suc(_50), Suc(n3'))  --  I would like to drop this
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      | g : Sum(Suc(_1), Suc(_50), Suc(n3')) ∧ Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∧-intro on e, f
+--      |
+--      | h1 : prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+
+
+
+
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      | prove Sum(Suc(_1), Suc(_50), Suc(n3'))
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      | prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+
+
+--  a : ∃ (n3 : ℕ) : Sum(_1, Suc(_50), n3) ∧ Sum(Suc(_50), _1, n3)  by rule ∀-elim on _48
+--  b : | p : Sum(_1, Suc(_50), n3') ∧ Sum(Suc(_50), _1, n3') for some (n3' : ℕ)
+--      |------------------------------------------------------------------------
+--      | c : Sum(_1, Suc(_50), n3')  by rule ∧-elim on p
+--      | d : Sum(Suc(_50), _1, n3')  by rule ∧-elim on p
+--      -- | e : Sum(Suc(_1), Suc(_50), Suc(n3')) by rule sum-suc on c
+--      |
+--      | f2 : ∀ (N1 : ℕ) (N2 : ℕ) (N3 : ℕ) : Sum(N1, N2, N3) ==> Sum(N1, Suc(N2), Suc(N3)) by theorem sum-s-rhs
+--      | f1 : Sum(Suc(_50), _1, n3') ==> Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ∀-elim on f2
+--      | f : Sum(Suc(_50), Suc(_1), Suc(n3'))  by rule ==>-elim on f1, d
+--      | prove ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')
+--  i : ∃ (n3' : ℕ) : Sum(Suc(_1), Suc(_50), n3') ∧ Sum(Suc(_50), Suc(_1), n3')  by rule ∃-elim on a, b
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-- kdybych mel indukcni hyp.
+-- ∀ (n1 : ℕ) : [∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)]
+
+
+
+
+-- pripadne preformulovat jako
+-- pro vsechny n3 plati ... iff prvni tak druha cast
+
+
+
+
+
+
+
+
+--
+--  prove sum Sum(N?!, Zero, N?!)
+--  
+--  Both constructors match.
+--  FIRST sum-zero
+--  
+--  |
+--  |-------------------------------------- sum-zero
+--  | Sum(Zero, N?, Zero)
+--  
+--  where N? is Zero
+--  - For this constr. to match. We need to check that N? unifies with Zero. (And unify it with it.)
+--  
+--  Then we succeed.
+--  
+--  
+--  
+--  SECOND sum-suc
+--  
+--  | Sum(m, n, o)
+--  |-------------------------------------- sum-suc
+--  | Sum(Suc(m), n, Suc(o))
+--  
+--  where N? = Suc(m)
+--        n = Zero
+--        N? = Suc(o)
+--  
+--  The new goal is Sum(m, n, o).
+--  The fact that n = Zero might still be hidden now.
+--  
+--  The goal is now tried.
+--  This means that we have to ask for values of m, n, o.
+--  
+--        
+
+
+
+
+-- theorem 2+3=5 : Sum(2, 3, 5)
+-- prove Sum(2, 3, 5)
+--  this should start with something like Sum( a? , b? , c? )
+--  it should then try to match that goal using all of the rules of sum
+--
+--  it tries sum-suc:
+--    | Sum(m, n, o)
+--    |-------------------------------------- sum-suc
+--    | Sum(Suc(m), n, Suc(o))
+--
+--  Suc(m) is unified with a?
+--  this succeeds, because a? is actually 2
+--
+--  Suc(o) is unified with c?
+--  this succeeds, because c? is actually 5
+--
+--  The new goal is now Sum( m? , b? , o? )
+--  which is actually Sum( 1 , b? , 4 )
+--
+--
+--  This goes on and on. Until we get a goal Sum( Zero, 3 , 3 )
+--  This goal succeeds through sum-zero
+--  
+--
+--
+--  it tries sum-zero:
+--    |
+--    |-------------------------------------- sum-zero
+--    | Sum(Zero, n, n)
+--
+--  
+

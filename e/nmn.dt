@@ -1,0 +1,41 @@
+module ℕ
+
+
+aliases : 2 = Suc(Suc(Zero))
+        , 3 = Suc(Suc(Suc(Zero)))
+        , 5 = Suc(Suc(Suc(Suc(Suc(Zero)))))
+
+
+syntax ℕ  = Zero    --  Zero : ℕ
+          | Suc(ℕ)  --  Suc  : ℕ -> ℕ
+
+
+judgment sum = Sum(ℕ, ℕ, ℕ)
+
+rule schema sum-zero for all objects (n : ℕ) :
+|
+|-------------------------------------- sum-zero
+| Sum(Zero, n, n)
+
+
+rule schema sum-suc for all objects (m : ℕ), (n : ℕ), (o : ℕ) :
+| Sum(m, n, o)
+|-------------------------------------- sum-suc
+| Sum(Suc(m), n, Suc(o))
+
+
+
+
+theorem N+M=N : ∃ (N : ℕ) : ∀ (M : ℕ) : Sum(N, M, N)
+prove ∃ (N : ℕ) : ∀ (M : ℕ) : Sum(N, M, N)
+
+--  in the interactive mode, insert this:
+--  nonsense : Sum(_0, Suc(_2), _0)  by unproved
+
+
+
+theorem M+N=N : ∃ (N : ℕ) : ∀ (M : ℕ) : Sum(M, N, N)
+prove ∃ (N : ℕ) : ∀ (M : ℕ) : Sum(M, N, N)
+
+--  in the interactive mode, insert this:
+--  nonsense : Sum(_2, Suc(_11), _11)  by unproved

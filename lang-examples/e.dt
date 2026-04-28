@@ -1,0 +1,111 @@
+
+
+
+theorem even-sum for all objects (n₁ : ℕ) (n₂ : ℕ) : Even n₁ , Even n₂ ⊢ ∃ (n₃ : ℕ) : n₁ + n₂ = n₃ ∧ Even(n₃)
+for any (n1 : ℕ)
+  for any (n2 : ℕ)
+    for even-n1 : Even n1
+        even-n2 : Even n2
+
+      ∃ (n₃ : ℕ) : n₁ + n2 = n₃ ∧ Even(n₃)  by induction on even-n1
+        case rule
+          
+          ---------------- even-z
+          _ : Even Zero
+
+          ->  z+n2=n2 : Zero + n2 = n2  by rule sum-z
+              even-n3 : even n3  by d2
+              Zero + n2 = n3 ∧ even n3  by rule ∧-intro on z+n2=n2 , even-n3
+
+        case rule
+          even-n1' : even n1'
+          ------------------------ even-s
+          _ : even Suc (Suc n1')
+
+          ->  
+              sum∧even : n1' + n2 = n3' ∧ even n3'  by induction hypothesis on even-n1', d2
+              n1'+n2=n3' : n1' + n2 = n3'  by rule ∧-elim on sum∧even
+              even-n3' : even n3'  by rule ∧-elim on sum∧even
+
+              sum2 : Suc n1' + n2 = Suc n3'  by rule sum-s on n1'+n2=n3'
+              sum3 : Suc (Suc n1') + n2 = Suc (Suc n3')  by rule sum-s on sum2
+
+              even-n3 : even Suc (Suc n3')  by rule even-s on even-n3'
+              p : Suc (Suc n1') + n2 = Suc (Suc n3') ∧ even Suc (Suc n3')  by rule ∧-intro on sum3, even-n3
+              ∃ n₃ : Suc (Suc n1') + n2 = n₃ ∧ even n₃  by rule ∃-intro on p
+
+
+
+
+theorem sum-total-comm : ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)
+
+for any (n1 : ℕ)
+  ∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)  by induction:
+    case Zero ->
+      prove  ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Zero, n2, n3) ∧ Sum(n2, Zero, n3)
+
+    case S m ->
+      for  ind-hyp : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(m, n2, n3) ∧ Sum(n2, m, n3)
+      for-all-N2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(S m, n2, n3) ∧ Sum(n2, S m, n3)
+      for-all-N2 =  for any (N2 : ℕ)
+                      ∃ (n3 : ℕ) : Sum(S m, N2, n3) ∧ Sum(N2, S m, n3)  by case analysis on N2:
+                        case Zero ->
+                          prove  ∃ (n3 : ℕ) : Sum(S m, Zero, n3) ∧ Sum(Zero, S m, n3)
+
+                        case S m' ->
+                          1 : ∃ (n3 : ℕ) : Sum(m, S m', n3) ∧ Sum(S m', m, n3)  by ind-hyp on (S m')
+
+                          2 : ∃ (n3 : ℕ) : Sum(S m, S m', n3) ∧ Sum(S m', S m, n3)
+                          2 = for p : Sum(m, S m', n3') ∧ Sum(S m', m, n3') for some (n3' : ℕ) using 1
+                              3 : Sum(m, S m', n3')  by rule ∧-elim-l on p
+                              4 : Sum(S m', m, n3')  by rule ∧-elim-r on p
+                              5 : Sum(S m, S m', S n3')  by rule sum-s on 33
+                              6 : Sum(S m', m, n3') ==> Sum(S m', S m, S n3')  by theorem sum-s-rhs on (S m'), m, n3'
+                              7 : Sum(S m', S m, S n3')  by rule ==>-elim on 6, 4
+                              8 : Sum(S m, S m', S n3') ∧ Sum(S m', S m, S n3')  by rule ∧-intro on 5, 6
+
+
+
+N+0=N : ∀ (N : ℕ) : Sum(N, Zero, N)  by theorem n+0=n
+
+∀ (n1 : ℕ) (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(n1, n2, n3) ∧ Sum(n2, n1, n3)  by induction :
+
+  case Suc(m) ->
+    | ind-hyp : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(m, n2, n3) ∧ Sum(n2, m, n3)
+    |--------------------------------------------------------------------------
+    | -- goal = ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)
+    |
+    | 1 : | for any (N2' : ℕ)
+    |     |--------------------------------------------------------------------
+    |     |
+    |     | ∃ (n3 : ℕ) : Sum(Suc(m), N2', n3) ∧ Sum(N2', Suc(m), n3)  by case analysis on N2' :
+    |     |
+    |     |   case Zero ->
+    |     |     |
+    |     |     |--------------------------------------------------------------
+    |     |     |
+    |     |     | 4 : prove  ∃ (n3 : ℕ) : Sum(Suc(m), Zero, n3) ∧ Sum(Zero, Suc(m), n3)
+    |     |
+    |     |   case Suc(m') ->
+    |     |     |
+    |     |     |--------------------------------------------------------------
+    |     |     |
+    |     |     | 1 : ∃ (n3 : ℕ) : Sum(m, Suc(m'), n3) ∧ Sum(Suc(m'), m, n3)  by rule ∀-elim on ind-hyp
+    |     |     | 2 : | p : Sum(m, Suc(m'), n3') ∧ Sum(Suc(m'), m, n3') for some (n3' : ℕ)
+    |     |     |     |--------------------------------------------------------
+    |     |     |     |
+    |     |     |     | -- 3 : Sum(m, Suc(m'), n3')  by rule ∧-elim on p
+    |     |     |     | -- 4 : Sum(Suc(m'), m, n3')  by rule ∧-elim on p
+    |     |     |     |
+    |     |     |     | -- 5 : prove  Sum(Suc(m), Suc(m'), Suc(n3'))
+    |     |     |     |
+    |     |     |     | -- f2 : ∀ (N1 : ℕ) (N2 : ℕ) (n3' : ℕ) : Sum(N1, N2, n3') ==> Sum(N1, Suc(N2), Suc(n3')) by theorem sum-s-rhs
+    |     |     |     | -- f1 : Sum(Suc(m'), m, n3') ==> Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ∀-elim on f2
+    |     |     |     | -- 6 : Sum(Suc(m'), Suc(m), Suc(n3'))  by rule ==>-elim on f1, 4
+    |     |     |     | -- 6 : prove  Sum(Suc(m'), Suc(m), Suc(n3'))
+    |     |     |     | 7 : prove  Sum(Suc(m), Suc(m'), Suc(n3')) ∧ Sum(Suc(m'), Suc(m), Suc(n3'))
+    |     |     |     | 8 : prove ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)
+    |     |     |
+    |     |     | 9 : ∃ (n3 : ℕ) : Sum(Suc(m), Suc(m'), n3) ∧ Sum(Suc(m'), Suc(m), n3)  by rule ∃-elim on 1, 2
+    |
+    | 2 : ∀ (n2 : ℕ) : ∃ (n3 : ℕ) : Sum(Suc(m), n2, n3) ∧ Sum(n2, Suc(m), n3)  by rule ∀-intro on 1
