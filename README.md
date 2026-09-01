@@ -1,10 +1,10 @@
 # Detour
 
+We wrote and presented a paper called [*Don't Call Us, We'll Call You*](/hatra24.pdf) based on this project at HATRA SPLASH 2024.
+
 A toy proof-checker for first-order predicate logic natural deduction with Fitch-style notation.
 
-It is still in the stage of prototyping.
-
-It supports exactly first-order predicate logic with custom definitions for terms and propositions.
+It supports a subset of first-order predicate logic and second-order propositional logic with custom definitions for terms and propositions.
 
 ## Syntax
 
