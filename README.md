@@ -32,6 +32,72 @@ The only flag is `--lem` / `--no-lem` (default `--no-lem`): it allows or disallo
 the classical proof-by-contradiction rule. See [`examples/`](./examples) and [`exs/`](./exs)
 for sample inputs — e.g. `cabal run detour -- examples/impl.dt`.
 
+## A session
+
+The interaction is easier shown than described. Given a tiny theory of addition:
+
+```
+module demo
+
+syntax N = Zero
+         | Suc(N)
+
+judgment sum = Sum(N, N, N)
+
+rule schema sum-zero for all objects (n : N) :
+|
+|-------------------------------------- sum-zero
+| Sum(Zero, n, n)
+
+rule schema sum-suc for all objects (m : N), (n : N), (o : N) :
+| Sum(m, n, o)
+|-------------------------------------- sum-suc
+| Sum(Suc(m), n, Suc(o))
+
+theorem zero-plus-one : Sum(Suc(Zero), Zero, Suc(Zero))
+prove Sum(Suc(Zero), Zero, Suc(Zero))
+```
+
+asking for a proof starts a search that narrates itself — here it needs no help,
+so pressing Enter at each prompt (meaning "I don't know, carry on") is enough:
+
+```
+$ cabal run detour -- demo.dt
+Checking module `demo'
+
+I am solving a theorem `zero-plus-one'
+| searching for a proof of `Sum(Suc(Zeroᶜ), Zeroᶜ, Suc(Zeroᶜ))'
+[...]
+
+I am solving a theorem `zero-plus-one'
+using the rule sum-suc the matched goal = Sum(Suc(_1·?), _2·?, Suc(_3·?))
+  the new goals = Sum(Zeroᶜ, Zeroᶜ, Zeroᶜ)
+[...]
+
+I am solving a theorem `zero-plus-one'
+I had a goal = Sum(Zeroᶜ, Zeroᶜ, Zeroᶜ) and I solved it using a rule sum-zero
+  and got to solve some sub-goals ([]) and those are done.
+[...]
+✅ theorem `zero-plus-one' checked successfully
+```
+
+On harder goals the search gets stuck and waits instead of guessing.
+Running `cabal run detour -- examples/sum-auto.dt` in a terminal ends up here:
+
+```
+|| my goal `∃ (O : ℕᶜ) : Sum(Zeroᶜ, Suc(_3®), Oᵇ)' wasn't proved by any
+   local assert, I am going to try theorems
+[...]
+My current goal is: `Sum(Suc(_1®), Zeroᶜ, _28·?)'
+```
+
+At that prompt you can press Enter to let it continue on its own, type
+`list theorems` or `list locals` to inspect what it has to work with, or paste
+the missing proof steps (a blank line submits them) — and the search carries on
+from there. That handoff, in either direction, is the whole idea.
+
+(Transcripts trimmed; the prototype is chatty and also prints unification traces.)
+
 ## Syntax
 
 ### Axioms
