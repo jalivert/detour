@@ -11,12 +11,12 @@ import Helper (checkFile, replace, runCheck)
 
 spec :: Spec
 spec = do
-  implSrc <- runIO (readFile "exs/impl.dt")
+  implSrc <- runIO (readFile "examples/impl.dt")
 
   describe "Checker.check'module" $ do
 
-    it "checks the ==>-intro/==>-elim proof in exs/impl.dt" $ do
-      checkFile False "exs/impl.dt" `shouldReturn` Right [("foo", Nothing)]
+    it "checks the ==>-intro/==>-elim proof in examples/impl.dt" $ do
+      checkFile False "examples/impl.dt" `shouldReturn` Right [("foo", Nothing)]
 
 
     it "checks the Top-intro proof in examples/simplest.dt" $ do
@@ -24,18 +24,18 @@ spec = do
       res `shouldSatisfy` either (const False) (all (isNothing . snd))
 
 
-    it "checks the Exists-intro proof in ex-talk/ex.dt" $ do
-      res <- checkFile False "ex-talk/ex.dt"
+    it "checks the Exists-intro proof in examples/exists-intro.dt" $ do
+      res <- checkFile False "examples/exists-intro.dt"
       res `shouldSatisfy` either (const False) (all (isNothing . snd))
 
 
-    it "checks axioms with Forall-elim in exs/a.dt" $ do
-      res <- checkFile False "exs/a.dt"
+    it "checks axioms with Forall-elim in examples/axioms.dt" $ do
+      res <- checkFile False "examples/axioms.dt"
       res `shouldSatisfy` either (const False) (all (isNothing . snd))
 
 
-    it "rejects the faulty Exists-intro step in exs/wrong-ex.dt" $ do
-      res <- checkFile False "exs/wrong-ex.dt"
+    it "rejects the faulty Exists-intro step in examples/wrong-exists-intro.dt" $ do
+      res <- checkFile False "examples/wrong-exists-intro.dt"
       case res of
         Right [("wrong", Just err)] ->
           show err `shouldContain` "∃-intro"
@@ -62,7 +62,7 @@ spec = do
 
 
     it "succeeds vacuously on a module with no theorems" $ do
-      checkFile False "exs/rejected.dt" `shouldReturn` Right []
+      checkFile False "examples/axioms-only.dt" `shouldReturn` Right []
 
 
     it "surfaces parse errors as Left without checking anything" $ do

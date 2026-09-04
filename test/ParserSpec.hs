@@ -32,8 +32,8 @@ spec = describe "Parser.parse'module" $ do
     map T.name (M.theorems modul) `shouldBe` ["simplest"]
 
 
-  it "parses the syntax/judgment/rule-schema declarations of e/N-n+0.dt" $ do
-    src <- readFile "e/N-n+0.dt"
+  it "parses the syntax/judgment/rule-schema declarations of examples/sum-auto.dt" $ do
+    src <- readFile "examples/sum-auto.dt"
     modul <- parseOrFail src
     M.name modul `shouldBe` "ℕ"
     M.syntax modul `shouldSatisfy` (not . null)

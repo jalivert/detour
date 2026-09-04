@@ -30,7 +30,7 @@ cabal run detour -- [flags] <file.dt>...
 The checker reads a `.dt` module, then reports each theorem as checked (`✅`) or failed (`❌`).
 The only flag is `--lem` / `--no-lem` (default `--no-lem`): it allows or disallows
 the classical proof-by-contradiction rule. See [`examples/`](./examples) and [`exs/`](./exs)
-for sample inputs — e.g. `cabal run detour -- exs/impl.dt`.
+for sample inputs — e.g. `cabal run detour -- examples/impl.dt`.
 
 ## Syntax
 
