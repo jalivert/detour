@@ -1,5 +1,7 @@
 # Detour
 
+[![CI](https://github.com/jalivert/detour/actions/workflows/ci.yml/badge.svg)](https://github.com/jalivert/detour/actions/workflows/ci.yml)
+
 This repository contains the Haskell implementation of Detour: a small interactive proof assistant for first-order logic, together with a collection of example proofs. It is a research prototype built to explore an idea, not a general-purpose prover — see Research context below for what that idea is.
 
 ## Research context
@@ -14,6 +16,21 @@ The point of the project is the interaction model, not prover strength. The usua
 The vehicle for the experiment is a toy proof-checker for first-order predicate logic natural deduction with Fitch-style notation.
 
 It supports a subset of first-order predicate logic and second-order propositional logic with custom definitions for terms and propositions.
+
+## Building and running
+
+You need GHC (9.8–9.12) and Cabal; the `alex` and `happy` build tools are fetched automatically.
+
+```
+cabal build all
+cabal test
+cabal run detour -- [flags] <file.dt>...
+```
+
+The checker reads a `.dt` module, then reports each theorem as checked (`✅`) or failed (`❌`).
+The only flag is `--lem` / `--no-lem` (default `--no-lem`): it allows or disallows
+the classical proof-by-contradiction rule. See [`examples/`](./examples) and [`exs/`](./exs)
+for sample inputs — e.g. `cabal run detour -- exs/impl.dt`.
 
 ## Syntax
 
