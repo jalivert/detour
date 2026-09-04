@@ -110,7 +110,7 @@ library
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.19.0.0,
+        base >=4.19.0.0 && <4.23,
         array >= 0.5.4.0,
         containers >=0.6.2.1,
         directory,
@@ -161,7 +161,7 @@ executable detour
 
     -- Other library packages from which modules are imported.
     build-depends:
-        base ^>=4.19.0.0,
+        base >=4.19.0.0 && <4.23,
         containers >=0.6.2.1,
         extra,
         mtl,
@@ -176,3 +176,23 @@ executable detour
     default-extensions:
         ImportQualifiedPost,
         LambdaCase
+
+test-suite detour-test
+    import:           warnings
+    type:             exitcode-stdio-1.0
+    hs-source-dirs:   test
+    main-is:          Spec.hs
+    other-modules:
+        Helper
+        ParserSpec
+        CheckerSpec
+    build-depends:
+        base >=4.19.0.0 && <4.23,
+        detour,
+        hspec,
+    default-language: Haskell2010
+    default-extensions:
+        ImportQualifiedPost,
+        LambdaCase,
+        MultiParamTypeClasses,
+        GADTs

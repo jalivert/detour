@@ -248,13 +248,13 @@ check'rule Proof'By'Contradiction [Derived (Formula [(_, Not a)]) last] formula 
 
   if lem
   then do
-    throwError (Err "Proof by contradiction is disallowed.")
-
-  else do
     because ("I was trying to check the proof by contradiction and it seems that the goal is not even a ⊥.")
             (F.False `unify` last)
     because ("I was trying to check the proof by contradiction and it seems that the formula is not a negation of the assumption.")
             (a `unify` formula)
+
+  else do
+    throwError (Err "Proof by contradiction is disallowed.")
 
 check'rule Proof'By'Contradiction _ _ = do
   throwError $! Err "I saw wrong number or shapes of arguments to the rule `contradiction'."
