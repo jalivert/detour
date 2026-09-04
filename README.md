@@ -1,8 +1,17 @@
 # Detour
 
-We wrote and presented a paper called [*Don't Call Us, We'll Call You*](/hatra24.pdf) based on this project at HATRA SPLASH 2024.
+This repository contains the Haskell implementation of Detour: a small interactive proof assistant for first-order logic, together with a collection of example proofs. It is a research prototype built to explore an idea, not a general-purpose prover — see Research context below for what that idea is.
 
-A toy proof-checker for first-order predicate logic natural deduction with Fitch-style notation.
+## Research context
+
+Detour is the research prototype behind the paper [*Don't Call Us, We'll Call You: Towards Mixed-Initiative Interactive Proof Assistants for Programming Language Theory*](/hatra24.pdf) (Jan Liam Verter and Tomas Petricek, HATRA at SPLASH 2024).
+
+The point of the project is the interaction model, not prover strength. The usual way of working with a proof assistant is that the human builds the proof and calls automation to discharge the remaining goals. Detour inverts this: the tool opens with an automatic proof search based on a deliberately simple, hardcoded strategy, and pauses to ask the user for guidance wherever the search gets stuck — a setup known as mixed-initiative interaction. The assistant takes care of routine structure (induction over user-declared syntax, case splits, applying rules, lemmas, and local facts) while the human contributes insight at exactly the points that need it. The paper walks through this style of working using a proof of commutativity of addition on Peano naturals.
+
+
+## Implementation
+
+The vehicle for the experiment is a toy proof-checker for first-order predicate logic natural deduction with Fitch-style notation.
 
 It supports a subset of first-order predicate logic and second-order propositional logic with custom definitions for terms and propositions.
 
